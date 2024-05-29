@@ -1,5 +1,4 @@
 (ns day4
-  (:require [clojure.string :as string])
   (:import java.util.HexFormat
            java.security.MessageDigest))
 
