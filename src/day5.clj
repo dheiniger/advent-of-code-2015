@@ -4,13 +4,13 @@
 (def bad-strs #{"ab" "cd" "pq" "xy"})
 (def input (slurp "input/day5.txt"))
 
-(defn- n-vowels?[n str]
+(defn- n-vowels? [n str]
   (>= (count (keep vowels str)) n))
 
-(defn- repeats? [n str]
-  (->> (partition n 1 str)
-       (map set)
-       (remove #(> (count %) 1))
+(defn- repeats? [n s]
+  (->> s
+       (partition-by identity)
+       (remove #(< (count %) n))
        (not-empty)))
 
 (defn- has-bad-str? [s]
@@ -21,14 +21,40 @@
        (repeats? 2 s)
        (not (has-bad-str? s))))
 
-(defn- nice-2? [s]
+;; part 2
+(defn- two-pairs? [s]
+  (->> (partition-by identity s)
+       (remove #(= 3 (count %)))
+       flatten
+       (apply str)
+       (partition 2 1)
+       frequencies
+       vals
+       (some #(> % 1))))
 
-  )
+(defn- sandwiched? [s]
+  (let [triplets (partition 3 1 s)
+        sandwiches (reduce (fn [acc [x _ z :as triplet]]
+                             (if (= x z)
+                               (conj acc triplet)
+                               acc))
+                           [] triplets)]
+    (not-empty sandwiches)))
+
+(defn- nice-2? [s]
+  (and (two-pairs? s)
+       (sandwiched? s)))
 
 (comment
+  (add-tap clojure.pprint/pprint)
   ;pt 1
   (->> input
        clojure.string/split-lines
        (filter nice?)
        count) ;;255
+
+  (->> input
+       clojure.string/split-lines
+       (filter nice-2?)
+       count)
   )
